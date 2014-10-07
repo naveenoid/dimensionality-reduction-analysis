@@ -1,0 +1,26 @@
+
+xStart = [0;0];
+xEnd = [0.5;1.0];
+tspan = [0 1];
+trajectoryType = 2;
+opt.kx = 1;
+opt.ky = 1;
+opt.bx = 0.1;
+opt.by = 0.1;
+
+[udes,ydes1,ydes2] = generateBenchmarkTrajectoriesCartesian( xStart, xEnd, tspan,trajectoryType, opt,'r' );
+
+%ydes = @(t)sin25*t
+t = linspace(0,1,1000);
+legendreOpt.order = 5;
+
+%W1 = 
+[A, Y2, coeff, D] = legendrefit(ydes1(t), legendreOpt.order);
+
+
+Psi
+% figure;
+% plot(t,ydes1(t),'LineWidth',2.0);
+% figure;
+% 
+% plot(t,W1'*legendreBasis(t,legendreOpt),'r','LineWidth',2.0);

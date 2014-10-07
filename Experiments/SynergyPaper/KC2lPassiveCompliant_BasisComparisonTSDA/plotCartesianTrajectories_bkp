@@ -1,0 +1,126 @@
+function [ output_args ] = plotCartesianTrajectories( result, resultMech, trajectoryName, xD, redThreshold, numBasis, numTestTraj, cols,mechOpt,costFuncHSV2Store,costFuncRedOrderStore,basisFunc, basisLearning, basisOpt, inputDim )
+%PLOTCARTESIANTRAJECTORIES Summary of this function goes here
+%   Detailed explanation goes here
+
+
+
+for j = 1:numBasis
+    for i = 1:numTestTraj
+       % figure(2);
+        set(0,'CurrentFigure',2);
+        hold on;;%+ 5*(j-1));
+        subplot(2,1,1);
+        p = plot(result(i,j).t,result(i,j).x(:,1:2),'color',cols(i,:)); hold on;
+        ylabel('Position');
+        xlabel('time t(secs)');
+        legend('q_1','q_2');
+
+        annotatePlotGroup(p);
+
+        %resPos = fk = fkin(x(end,1),x(end,2),mechOpt);fk(3:4)%mechOpt.C*result(i,j).x';
+        % 
+        subplot(2,1,2);
+        %title('inputs computed by polybasis');
+        p = plot(result(i,j).t,result(i,j).WHat*basisFunc{j}(result(i,j).t,basisOpt{j}),'color',cols(i,:));hold on;%, tTrain,result(train).xD,'k'); hold on;
+        annotatePlotGroup(p);
+
+        
+        
+        set(0,'CurrentFigure',3);
+        %figure(3); 
+        hold on;%+ 5*(j-1));
+        %trajectoryTrace_snapshot(fkin(result(i,j).x(:,1),result(i,j).x(:,2),robotData()),result(i,j).t,robotData(),3,0,cols(i,:));hold on;
+        trajectoryTrace_snapshot_noRobot(fkin(result(i,j).x(:,1),result(i,j).x(:,2),robotData()),result(i,j).t,robotData(),3,0,cols(i,:));hold on;
+        
+        %p = plot(resPos(1,end),resPos(2,end),'o','color',cols(i,:)); hold on;
+        %annotatePlotGroup(p,'off');
+        %p = plot(resPos(1,:),resPos(2,:),'--','color',cols(i,:),'LineWidth',2.0); hold on;
+        %annotatePlotGroup(p);
+
+       % figure(4);
+        set(0,'CurrentFigure',4);
+        hold on;% + 5*(j-1));
+        p = plot(1:mechOpt.stateDim,cumsum(result(i,j).hsv)./sum(result(i,j).hsv),'linestyle','-','marker','o','color',cols(i,:),'LineWidth',1.5);
+        annotatePlotGroup(p); hold on;
+        axis tight;
+        title('Hankel Singular Values');
+        xlabel('State');
+        ylabel('Normalised HSV');
+    end
+end
+set(0,'CurrentFigure',1);
+%figure(1);
+%legend(trajectoryName{1:end});
+figure(2); 
+subplot(2,1,1);legend(trajectoryName{1:numTestTraj},'Location','SouthEast');subplot(2,1,2);legend(trajectoryName{1:numTestTraj},'Location','SouthEast');
+figure(3); 
+legend(trajectoryName{1:numTestTraj},'Location','SouthWest'); %grid on;axis equal; axis tight;
+%a = axis;axis(a*1.01); 
+xlabel('P_x position (m)');ylabel('P_y position (m)');
+
+plot(0,-0.8,'ko','MarkerSize',7,'LineWidth',2.5);plot(xD(1),xD(2),'ko','MarkerSize',7,'LineWidth',2.5);
+set(0,'CurrentFigure',4);
+%figure(4); 
+p = plot(1:mechOpt.stateDim,cumsum(resultMech.hsv)./sum(resultMech.hsv),'k-o','LineWidth',2.0); hold on;
+annotatePlotGroup(p);
+p = plot(cumsum(ones(4,1)),redThreshold*ones(4,1),'k'); grid on;
+annotatePlotGroup(p,'off');
+
+legend([trajectoryName{1:numTestTraj},trajectoryName{end}]','Location','SouthEast');
+
+set(0,'CurrentFigure',5);
+ %figure(5);
+
+
+
+%bar(1:2,costFuncStore');
+% if(numTestTraj>1)
+%     colormap(jet(numTestTraj+1));
+%     bar(1:numTestTraj,costFuncHSV2Store(1:numTestTraj,:));
+% else
+colormap(jet(numTestTraj+1));
+subplot(2,1,2);bar(costFuncHSV2Store(1:numTestTraj,:));
+set(gca,'xTick',1:numTestTraj,'xTickLabel',trajectoryName);
+legend('Polynomial Basis','Fourier Basis','Location','North');
+axis tight; grid on;xlabel('Trajectory');
+ylabel('Cost J(\sigma _2)');
+
+subplot(2,1,1);bar(costFuncRedOrderStore(1:numTestTraj,:));
+set(gca,'xTick',1:numTestTraj,'xTickLabel',trajectoryName);
+%legend('Polynomial Basis','Fourier Basis','Location','NorthEast');
+axis tight; grid on;%xlabel('Trajectory');
+ylabel('Dimensionaltiy D_W');
+%end
+%end
+
+
+
+
+%colormap(hsv(numTestTraj+1));
+%testT = 0:0.001:1.5;
+% figure(6);
+% plot(testT,basisFunc{1}(testT,basisOpt{1}),'LineWidth',2.0); grid on;
+% xlabel('Time (sec)');
+% ylabel('\Psi_i(t)');
+% figure(7);
+% plot(testT,basisFunc{2}(testT,basisOpt{2}),'LineWidth',2.0); grid on;
+% xlabel('Time (sec)');
+% ylabel('Basis Functions \Psi_i(t)');
+
+figFolder = './Plots/PolyFourierBasisComparisonKinematicChain/kc_multi_';
+%figure(3); 
+set(0,'CurrentFigure',3);
+figTitle = 'cartesianTrajectory';
+print('-depsc2','-r800',strcat(figFolder,figTitle));
+
+set(0,'CurrentFigure',5);
+%figure(5); 
+figTitle = 'cartesianRedDim';
+print('-depsc2','-r800',strcat(figFolder,figTitle));
+% 
+% figure(6); figTitle = 'polyBasis';
+% print('-depsc2','-r800',strcat(figFolder,figTitle));
+% 
+% figure(7); figTitle = 'fourierBasis';
+% print('-depsc2','-r800',strcat(figFolder,figTitle));
+end

@@ -1,0 +1,3 @@
+tspan = [1,3.0];
+load(sprintf('./Data/PolyFourierBasisComparison/basisComparison_tspan_%d',round(10*tspan(2))),'result', 'resultMech', 'trajectoryName', 'xD','redThreshold', 'numBasis', 'numTestTraj', 'cols','mechOpt','costFuncStore','basisFunc', 'basisLearning', 'basisOpt', 'inputDim','result', 'resultMech', 'trajectoryName', 'xD','redThreshold', 'numBasis', 'numTestTraj', 'cols','mechOpt','costFuncStore','hsvCostFuncStore','basisFunc', 'basisLearning', 'basisOpt', 'inputDim');
+plotCartesianTrajectories( result, resultMech, trajectoryName, xD, redThreshold, numBasis, numTestTraj, cols,mechOpt,costFuncStore,hsvCostFuncStore,basisFunc, basisLearning, basisOpt, inputDim )
